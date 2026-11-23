@@ -3,17 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Block Dodger</title>
+<title>Vista Bay — Open World Crime</title>
+<link rel="icon" href="data:,">
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #11141b; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1c2c; font-family: Arial, Helvetica, sans-serif; }
   #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  /* Read aloud, never shown: the status line screen readers announce. */
   #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #hud { position: fixed; inset: 0; pointer-events: none; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); z-index: 5; }
+  #top-right { position: absolute; top: 12px; right: 14px; text-align: right; font-size: 20px; font-weight: bold; }
+  #stars { font-size: 26px; letter-spacing: 2px; color: #ffd23b; }
+  #cash { font-size: 26px; color: #7dff8a; }
+  #health-wrap { width: 190px; height: 14px; background: rgba(0,0,0,.55); border: 1px solid #fff; margin: 6px 0 2px auto; }
+  #health-fill { height: 100%; width: 100%; background: #3ecf5a; }
+  #health-text, #ammo, #speed { font-size: 15px; }
+  #objective { position: absolute; top: 12px; left: 14px; max-width: 430px; font-size: 16px; background: rgba(0,0,0,.5); padding: 8px 10px; border-left: 4px solid #ffd23b; }
+  #dialog { position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); max-width: 640px; text-align: center; font-size: 16px; background: rgba(0,0,0,.6); padding: 8px 14px; border-radius: 6px; }
+  #toast { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); font-size: 17px; background: rgba(0,0,0,.65); padding: 6px 12px; border-radius: 6px; opacity: 0; transition: opacity .3s; }
+  #minimap { position: absolute; left: 14px; bottom: 14px; width: 160px; height: 160px; border-radius: 50%; border: 3px solid rgba(255,255,255,.85); background: #274b2e; }
+  #controls-hint { position: absolute; right: 14px; bottom: 14px; font-size: 12px; background: rgba(0,0,0,.5); padding: 6px 8px; text-align: right; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; display: none; }
+  #crosshair:before, #crosshair:after { content: ""; position: absolute; background: #fff; box-shadow: 0 0 3px #000; }
+  #crosshair:before { left: 8px; top: 0; width: 2px; height: 18px; }
+  #crosshair:after { left: 0; top: 8px; width: 18px; height: 2px; }
+  #menu { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,20,35,.55); z-index: 10; }
+  #menu-card { background: rgba(8,28,46,.92); color: #fff; padding: 28px 34px; max-width: 620px; border: 2px solid #ffd23b; border-radius: 10px; text-align: center; }
+  #menu-title { font-size: 44px; letter-spacing: 6px; color: #ffd23b; margin: 0 0 10px; }
+  #menu-text { font-size: 15px; line-height: 1.6; }
+  #menu-text button { pointer-events: auto; font-size: 18px; padding: 10px 22px; margin: 8px 4px 0; background: #ffd23b; color: #14202e; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  #menu-text button:hover { background: #ffe27a; }
+  #bigmap { position: fixed; inset: 0; display: none; background: rgba(0,0,0,.7); z-index: 8; text-align: center; }
+  #bigmap-canvas { margin-top: 20px; background: #274b2e; border: 2px solid #fff; }
+  #bigmap p { color: #fff; }
+  #screen-label { display: none; }
 </style>
 </head>
 <body>
-<canvas id="game" aria-label="Block Dodger: move the paddle left and right to dodge falling blocks and catch coins"></canvas>
+<canvas id="game" aria-label="Vista Bay: open-world crime game. Steal cars, outrun police, run missions."></canvas>
 <p id="status" role="status" aria-live="polite"></p>
+<div id="hud">
+  <div id="objective"></div>
+  <div id="top-right">
+    <div id="stars">☆☆☆☆☆</div>
+    <div id="cash">$250</div>
+    <div id="health-wrap"><div id="health-fill"></div></div>
+    <div id="health-text">100 HP</div>
+    <div id="ammo">🔫 24 / 96</div>
+    <div id="speed"></div>
+  </div>
+  <div id="dialog"></div>
+  <div id="toast"></div>
+  <canvas id="minimap" width="160" height="160"></canvas>
+  <div id="controls-hint">WASD move/drive · drag camera · click shoot<br>E steal car · F punch · R reload · M map · P pause</div>
+  <div id="crosshair"></div>
+</div>
+<div id="bigmap"><canvas id="bigmap-canvas" width="640" height="640"></canvas><p>Vista Bay — press M to close</p></div>
+<div id="menu"><div id="menu-card"><h1 id="menu-title">VISTA BAY</h1><div id="menu-text"></div></div></div>
+<span id="screen-label"></span>
+<script src="./vendor/three.min.js"></script>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>

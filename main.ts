@@ -1,16 +1,21 @@
-// A working gta6-01 entry (Node 22, standard library only): the game is this directory's
-// game/ folder, plain static files a desktop browser loads offline (game/index.html and its ES
-// modules, no library and no network request), and the program hands it in. It copies game/ and
-// screenshots/ from beside this file to /output and writes /output/dossier.json, the summary the
-// judge reads, with the vendored make.fun library. Only the plumbing, not an open world: Block
-// Dodger, a plain 2D canvas game where a paddle dodges falling blocks and catches coins, with a
-// title screen, score, lives and levels, game over and restart, flat colours and no sound. Build
-// your own open-world crime game in its place (three.js or any library you vendor under game/),
-// put your 3 or 4 PNG or JPEG screenshots in screenshots/ (the first by name is the cover) and run it.
+// Vista Bay — the hand-in program for the make.fun gta6-01 competition.
+// The game itself is plain static files under game/ (game/index.html plus its
+// ES modules, with Three.js r160 vendored as game/vendor/three.min.js). A
+// desktop browser opens it offline: every script, image and font the page
+// loads is a file inside game/ or a data: URI, so there is no network
+// request at all. This program, main.ts, is the only build step: it copies
+// game/ and screenshots/ from beside this file into the output directory
+// and writes /output/dossier.json with the kit's vendored library
+// (vendor/makefun-game.ts), which the judge reads.
 //
-// Serve it locally with `node serve.ts`, then open http://localhost:8080.
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Run it locally with:
+//   MAKEFUN_OUTPUT_DIR=out node main.ts
+// and serve the game itself with:
+//   node serve.ts            # http://localhost:8080
+//
+// Node 22, standard library only. The program runs twice in grading and
+// both runs must write the same bytes, so it does no timestamps, no random
+// choices and no network calls of its own.
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,15 +25,18 @@ import { buildDossier } from './vendor/makefun-game.ts';
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
+// Fresh output: game/ first, then the screenshots beside it.
 mkdirSync(out, { recursive: true });
 cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
-if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+if (existsSync(join(here, 'screenshots'))) {
+  cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+}
 
-// The scorer's own caps (reference/gate.json): only text_max_bytes shapes the bytes; the others refuse an entry the
-// scorer would refuse (more than 4 screenshots or one over 256 KiB; more than 993 files in game/ or 48 MiB of game
-// files, in all, or a path under game/ over 1000 bytes: game/ counts beside /output's own 1000-entry cap, its
-// screenshots/ and dossier.json).
+// The scorer's own caps (reference/gate.json): text_max_bytes shapes the
+// dossier text; the other caps refuse an entry the scorer would refuse —
+// more than 4 screenshots or one over 256 KiB; more than 993 files in game/
+// or 48 MiB of game files in all, or a path under game/ over 1000 bytes.
 writeFileSync(
   join(out, 'dossier.json'),
   buildDossier(out, {
